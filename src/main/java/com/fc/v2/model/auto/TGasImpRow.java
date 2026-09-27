@@ -42,6 +42,36 @@ public class TGasImpRow implements Serializable {
     @ApiModelProperty(value = "原表行次")
     private Integer rowNo;
 
+    /** 管段编号(原文) */
+    @TableField("site_no")
+    @ApiModelProperty(value = "管段编号(原文)")
+    private String siteNo;
+
+    /** 检测时间(原文) */
+    @TableField("detect_text")
+    @ApiModelProperty(value = "检测时间(原文)")
+    private String detectText;
+
+    /** 浓度值(原文) */
+    @TableField("conc_text")
+    @ApiModelProperty(value = "浓度值(原文)")
+    private String concText;
+
+    /** 经度(原文) */
+    @TableField("lng_text")
+    @ApiModelProperty(value = "经度(原文)")
+    private String lngText;
+
+    /** 纬度(原文) */
+    @TableField("lat_text")
+    @ApiModelProperty(value = "纬度(原文)")
+    private String latText;
+
+    /** 校验失败/重复跳过原因 */
+    @TableField("err_msg")
+    @ApiModelProperty(value = "校验失败/重复跳过原因")
+    private String errMsg;
+
     /** 被校验出的数据项代号 */
     @TableField("item_code")
     @ApiModelProperty(value = "被校验出的数据项代号")
@@ -52,9 +82,9 @@ public class TGasImpRow implements Serializable {
     @ApiModelProperty(value = "本行浓度读数(ppm)")
     private BigDecimal qty;
 
-    /** 行落地情形 0待核 1已入库 2退回 */
+    /** 行落地情形 0待核 1已入库 2校验失败退回 3重复跳过 */
     @TableField("status")
-    @ApiModelProperty(value = "行落地情形 0待核 1已入库 2退回")
+    @ApiModelProperty(value = "行落地情形 0待核 1已入库 2校验失败退回 3重复跳过")
     private Integer status;
 
     /** 删除标记 0正常 1删除 */
@@ -111,6 +141,54 @@ public class TGasImpRow implements Serializable {
 
     public void setRowNo(Integer rowNo) {
         this.rowNo = rowNo;
+    }
+
+    public String getSiteNo() {
+        return siteNo;
+    }
+
+    public void setSiteNo(String siteNo) {
+        this.siteNo = siteNo;
+    }
+
+    public String getDetectText() {
+        return detectText;
+    }
+
+    public void setDetectText(String detectText) {
+        this.detectText = detectText;
+    }
+
+    public String getConcText() {
+        return concText;
+    }
+
+    public void setConcText(String concText) {
+        this.concText = concText;
+    }
+
+    public String getLngText() {
+        return lngText;
+    }
+
+    public void setLngText(String lngText) {
+        this.lngText = lngText;
+    }
+
+    public String getLatText() {
+        return latText;
+    }
+
+    public void setLatText(String latText) {
+        this.latText = latText;
+    }
+
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
     }
 
     public String getItemCode() {

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('检漏数据批量导入')"/>
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-header"><b>Excel 批量导入</b>（无人机 / 激光检测车检漏数据，支持 xls / xlsx，单批次不超过 5000 行）</div>
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">批次号</label>
+                <div class="layui-input-inline" style="width: 260px;">
+                    <input type="text" id="batchNo" autocomplete="off"
+                           placeholder="留空由系统生成；同一批次号重复上传自动去重" class="layui-input">
+                </div>
+                <div class="layui-input-inline">
+                    <button shiro:hasPermission="gasDetectImport:upload" type="button"
+                            class="pear-btn pear-btn-md pear-btn-primary" id="chooseFile">
+                        <i class="layui-icon layui-icon-add-1"></i>选择文件
+                    </button>
+                    <button shiro:hasPermission="gasDetectImport:upload" type="button"
+                            class="pear-btn pear-btn-md pear-btn-warming" id="uploadBtn">
+                        <i class="layui-icon layui-icon-upload"></i>开始上传
+                    </button>
+                    <button shiro:hasPermission="gasDetectImport:view" type="button"
+                            class="pear-btn pear-btn-md" onclick="downloadTemplate()">
+                        <i class="layui-icon layui-icon-download-circle"></i>模板下载
+                    </button>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">已选文件</label>
+                <div class="layui-form-mid" id="fileNameView"><span class="layui-badge layui-bg-gray">未选择文件</span></div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-header"><b>导入批次台账</b></div>
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">批次号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="batchNo" placeholder="批次号" class="layui-input">
+                </div>
+                <label class="layui-form-label">批次情形</label>
+                <div class="layui-input-inline">
+                    <select name="status">
+                        <option value="">全部</option>
+                        <option value="0">全部成功</option>
+                        <option value="1">部分失败</option>
+                        <option value="2">全部失败</option>
+                    </select>
+                </div>
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="gasImpBatch-query">
+                    <i class="layui-icon layui-icon-search"></i>查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>重置
+                </button>
+            </div>
+        </form>
+        <table id="gasImpBatch-table" lay-filter="gasImpBatch-table"></table>
+    </div>
+</div>
+</body>
+
+<script type="text/html" id="gasImpBatch-status">
+    {{# if(d.status == 0){ }}
+    <span class="layui-badge layui-bg-green">全部成功</span>
+    {{# }else if(d.status == 1){ }}
+    <span class="layui-badge layui-bg-orange">部分失败</span>
+    {{# }else{ }}
+    <span class="layui-badge layui-bg-red">全部失败</span>
+    {{# } }}
+</script>
+
+<script type="text/html" id="gasImpBatch-bar">
+    {{# if((d.failRows || 0) + (d.dupRows || 0) > 0){ }}
+    <button shiro:hasPermission="gasDetectImport:view" class="pear-btn pear-btn-danger pear-btn-sm"
+            lay-event="errorReport" title="下载校验失败/重复跳过明细">
+        <i class="layui-icon layui-icon-download-circle"></i>错误报告
+    </button>
+    {{# }else{ }}
+    <span class="layui-badge layui-bg-gray">无错误行</span>
+    {{# } }}
+</script>
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'upload', 'layer'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let $ = layui.jquery;
+        let upload = layui.upload;
+
+        let MODULE_PATH = rootPath + "/gasDetectImport/";
+
+        let cols = [
+            [
+                {title: 'ID', field: 'id', align: 'center', hide: true},
+                {title: '批次号', field: 'batchNo', align: 'left', width: 200},
+                {title: '文件名', field: 'fileName', align: 'left'},
+                {title: '总行数', field: 'totalRows', align: 'center', width: 90},
+                {title: '成功', field: 'successRows', align: 'center', width: 80},
+                {title: '失败', field: 'failRows', align: 'center', width: 80},
+                {title: '重复跳过', field: 'dupRows', align: 'center', width: 100},
+                {title: '批次情形', field: 'status', align: 'center', width: 110, toolbar: '#gasImpBatch-status'},
+                {title: '上传人', field: 'createBy', align: 'center', width: 100},
+                {title: '上传时间', field: 'createTime', align: 'center', width: 170},
+                {title: '操作', toolbar: '#gasImpBatch-bar', align: 'center', width: 130, fixed: 'right'}
+            ]
+        ];
+
+        table.render({
+            elem: '#gasImpBatch-table',
+            url: MODULE_PATH + 'batchList',
+            page: true,
+            method: 'get',
+            cols: cols,
+            skin: 'line',
+            defaultToolbar: [{'layEvent': 'refresh', icon: 'layui-icon-refresh'}, 'filter', 'print', 'exports'],
+            where: {orderByColumn: "create_time", isAsc: "desc"}
+        });
+
+        table.on('tool(gasImpBatch-table)', function (obj) {
+            if (obj.event === 'errorReport') {
+                window.open(MODULE_PATH + 'errorReport?batchNo=' + encodeURIComponent(obj.data['batchNo']));
+            }
+        });
+
+        form.on('submit(gasImpBatch-query)', function (data) {
+            table.reload('gasImpBatch-table', {where: data.field});
+            return false;
+        });
+
+        // Excel 选择 + 手动触发上传
+        upload.render({
+            elem: '#chooseFile',
+            url: MODULE_PATH + 'upload',
+            field: 'file',
+            accept: 'file',
+            exts: 'xls|xlsx',
+            auto: false,
+            bindAction: '#uploadBtn',
+            choose: function (obj) {
+                obj.preview(function (index, file) {
+                    $('#fileNameView').html('<span class="layui-badge layui-bg-blue">' + file.name + '</span>');
+                });
+            },
+            before: function () {
+                this.data.batchNo = $('#batchNo').val();
+                layer.load(2, {shade: [0.3, '#000']});
+            },
+            done: function (result) {
+                layer.closeAll('loading');
+                if (result.code == 200) {
+                    let b = result.data || {};
+                    layer.alert(result.msg + (b.batchNo ? '<br><br>批次号：<b>' + b.batchNo + '</b>' : ''),
+                        {icon: 1, title: '导入结果'});
+                    table.reload('gasImpBatch-table');
+                } else {
+                    layer.alert(result.msg, {icon: 2, title: '导入失败'});
+                }
+            },
+            error: function () {
+                layer.closeAll('loading');
+                layer.msg('上传请求失败，请重试', {icon: 2});
+            }
+        });
+
+        window.downloadTemplate = function () {
+            window.open(MODULE_PATH + 'template');
+        };
+    });
+</script>
+</html>

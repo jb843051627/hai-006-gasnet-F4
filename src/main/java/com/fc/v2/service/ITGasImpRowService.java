@@ -23,4 +23,13 @@ public interface ITGasImpRowService {
 
     /** 该批次的失败行明细（按行号升序） */
     List<TGasImpRow> listErrors(String batchNo);
+
+    /**
+     * 覆盖式保存某批次的核对行：先清除该批次旧行再整批写入（同一批次重复上传时核对结果以最新一次为准）。
+     * 返回写入行数。
+     */
+    int replaceBatchRows(String batchNo, List<TGasImpRow> rows);
+
+    /** 该批次需列入错误报告的行（校验失败 + 重复跳过，按行号升序） */
+    List<TGasImpRow> listErrorRows(String batchNo);
 }

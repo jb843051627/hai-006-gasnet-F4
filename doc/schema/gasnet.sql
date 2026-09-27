@@ -26,18 +26,68 @@ CREATE TABLE IF NOT EXISTS t_gas_conc_rule (
 CREATE TABLE IF NOT EXISTS t_gas_imp_row (
   id bigint NOT NULL COMMENT '主键',
   batch_no varchar(64) DEFAULT NULL COMMENT '检漏数据上传批次号',
-  row_no int DEFAULT NULL COMMENT '原表行次',
+  row_no int DEFAULT NULL COMMENT '原表行次(Excel行号)',
+  site_no varchar(64) DEFAULT NULL COMMENT '管段编号(原文)',
+  detect_text varchar(64) DEFAULT NULL COMMENT '检测时间(原文)',
+  conc_text varchar(64) DEFAULT NULL COMMENT '浓度值(原文)',
+  lng_text varchar(64) DEFAULT NULL COMMENT '经度(原文)',
+  lat_text varchar(64) DEFAULT NULL COMMENT '纬度(原文)',
+  err_msg varchar(500) DEFAULT NULL COMMENT '校验失败/重复跳过原因',
   item_code varchar(64) DEFAULT NULL COMMENT '被校验出的数据项代号',
   qty decimal(12,2) DEFAULT NULL COMMENT '本行浓度读数(ppm)',
-  status int DEFAULT NULL COMMENT '行落地情形 0待核 1已入库 2退回',
+  status int DEFAULT NULL COMMENT '行落地情形 0待核 1已入库 2校验失败退回 3重复跳过',
   del_flag int DEFAULT '0' COMMENT '删除标记 0正常 1删除',
   create_by varchar(64) DEFAULT NULL COMMENT '创建者',
   create_time datetime DEFAULT NULL COMMENT '创建时间',
   update_by varchar(64) DEFAULT NULL COMMENT '更新者',
   update_time datetime DEFAULT NULL COMMENT '更新时间',
   remark varchar(500) DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY idx_gas_imp_row_batch (batch_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='检漏数据导入核对行';
+
+CREATE TABLE IF NOT EXISTS t_gas_imp_batch (
+  id bigint NOT NULL COMMENT '主键',
+  batch_no varchar(64) DEFAULT NULL COMMENT '检漏数据上传批次号',
+  file_name varchar(255) DEFAULT NULL COMMENT '上传文件名',
+  total_rows int DEFAULT '0' COMMENT '数据总行数',
+  success_rows int DEFAULT '0' COMMENT '校验成功入库行数',
+  fail_rows int DEFAULT '0' COMMENT '校验失败行数',
+  dup_rows int DEFAULT '0' COMMENT '重复跳过行数',
+  status int DEFAULT NULL COMMENT '批次情形 0全部成功 1部分失败 2全部失败',
+  del_flag int DEFAULT '0' COMMENT '删除标记 0正常 1删除',
+  create_by varchar(64) DEFAULT NULL COMMENT '创建者',
+  create_time datetime DEFAULT NULL COMMENT '创建时间',
+  update_by varchar(64) DEFAULT NULL COMMENT '更新者',
+  update_time datetime DEFAULT NULL COMMENT '更新时间',
+  remark varchar(500) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_gas_imp_batch_no (batch_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='检漏数据导入批次';
+
+CREATE TABLE IF NOT EXISTS t_gas_detect_report (
+  id bigint NOT NULL COMMENT '主键',
+  report_no varchar(64) DEFAULT NULL COMMENT '检测报告编号',
+  batch_no varchar(64) DEFAULT NULL COMMENT '来源上传批次号',
+  pipe_id bigint DEFAULT NULL COMMENT '管段底档 t_gas_pipe.id',
+  site_no varchar(64) DEFAULT NULL COMMENT '管段编号',
+  site_name varchar(128) DEFAULT NULL COMMENT '管段名称(快照)',
+  detect_time datetime DEFAULT NULL COMMENT '现场检测时间',
+  conc_value decimal(12,2) DEFAULT NULL COMMENT '浓度值(ppm)',
+  lng decimal(10,6) DEFAULT NULL COMMENT '经度',
+  lat decimal(10,6) DEFAULT NULL COMMENT '纬度',
+  status int DEFAULT '0' COMMENT '记录情形 0有效 1作废',
+  del_flag int DEFAULT '0' COMMENT '删除标记 0正常 1删除',
+  create_by varchar(64) DEFAULT NULL COMMENT '创建者',
+  create_time datetime DEFAULT NULL COMMENT '创建时间',
+  update_by varchar(64) DEFAULT NULL COMMENT '更新者',
+  update_time datetime DEFAULT NULL COMMENT '更新时间',
+  remark varchar(500) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_gas_report_batch_row (batch_no, site_no, detect_time),
+  KEY idx_gas_report_detect_time (detect_time),
+  KEY idx_gas_report_pipe (pipe_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='检漏检测报告(批量导入正式记录)';
 
 CREATE TABLE IF NOT EXISTS t_gas_leak_check (
   id bigint NOT NULL COMMENT '主键',

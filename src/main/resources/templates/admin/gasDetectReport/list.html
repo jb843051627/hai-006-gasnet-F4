@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('检漏检测报告台账')"/>
+</head>
+<body class="pear-container">
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">检测时间</label>
+                <div class="layui-input-inline" style="width: 170px;">
+                    <input type="text" name="beginTime" id="beginTime" autocomplete="off" placeholder="开始时间"
+                           class="layui-input">
+                </div>
+                <div class="layui-form-mid">至</div>
+                <div class="layui-input-inline" style="width: 170px;">
+                    <input type="text" name="endTime" id="endTime" autocomplete="off" placeholder="结束时间"
+                           class="layui-input">
+                </div>
+
+                <label class="layui-form-label">批次号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="batchNo" placeholder="上传批次号" class="layui-input">
+                </div>
+
+                <label class="layui-form-label">管段</label>
+                <div class="layui-input-inline" style="width: 130px;">
+                    <input type="text" name="siteNo" placeholder="管段编号" class="layui-input">
+                </div>
+                <div class="layui-input-inline" style="width: 110px;">
+                    <input type="text" name="pipeId" placeholder="管段ID" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">管段名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="siteName" placeholder="管段名称" class="layui-input">
+                </div>
+
+                <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="gasDetectReport-query">
+                    <i class="layui-icon layui-icon-search"></i>
+                    查询
+                </button>
+                <button type="reset" class="pear-btn pear-btn-md">
+                    <i class="layui-icon layui-icon-refresh"></i>
+                    重置
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="gasDetectReport-table" lay-filter="gasDetectReport-table"></table>
+    </div>
+</div>
+</body>
+
+<th:block th:include="include :: footer"/>
+<script>
+    layui.use(['table', 'form', 'jquery', 'laydate'], function () {
+        let table = layui.table;
+        let form = layui.form;
+        let laydate = layui.laydate;
+
+        let MODULE_PATH = rootPath + "/gasDetectReport/";
+        laydate.render({elem: '#beginTime', type: 'datetime', format: 'yyyy-MM-dd HH:mm:ss'});
+        laydate.render({elem: '#endTime', type: 'datetime', format: 'yyyy-MM-dd HH:mm:ss'});
+
+        let cols = [
+            [
+                {title: 'ID', field: 'id', align: 'center', hide: true},
+                {title: '报告编号', field: 'reportNo', align: 'left', width: 190},
+                {title: '批次号', field: 'batchNo', align: 'left', width: 190},
+                {title: '检测时间', field: 'detectTime', align: 'center', width: 170},
+                {title: '管段ID', field: 'pipeId', align: 'center', width: 90, hide: true},
+                {title: '管段编号', field: 'siteNo', align: 'left', width: 110},
+                {title: '管段名称', field: 'siteName', align: 'left'},
+                {title: '浓度值(ppm)', field: 'concValue', align: 'center', width: 110},
+                {title: '经度', field: 'lng', align: 'center', width: 110},
+                {title: '纬度', field: 'lat', align: 'center', width: 110},
+                {title: '上传人', field: 'createBy', align: 'center', width: 100},
+                {title: '入库时间', field: 'createTime', align: 'center', width: 170}
+            ]
+        ];
+
+        table.render({
+            elem: '#gasDetectReport-table',
+            url: MODULE_PATH + 'list',
+            page: true,
+            method: 'get',
+            cols: cols,
+            skin: 'line',
+            defaultToolbar: [{'layEvent': 'refresh', icon: 'layui-icon-refresh'}, 'filter', 'print', 'exports'],
+            where: {orderByColumn: "detect_time", isAsc: "desc"}
+        });
+
+        form.on('submit(gasDetectReport-query)', function (data) {
+            table.reload('gasDetectReport-table', {where: data.field});
+            return false;
+        });
+    });
+</script>
+</html>
