@@ -52,6 +52,11 @@
                     <input type="text" name="checkNo" class="layui-input">
                 </div>
 
+                <label class="layui-form-label">导入批次号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="batchNo" placeholder="精确匹配" class="layui-input">
+                </div>
+
                 <button class="pear-btn pear-btn-md pear-btn-primary" lay-submit lay-filter="gasLeakCheck-query">
                     <i class="layui-icon layui-icon-search"></i>
                     查询
@@ -131,6 +136,11 @@
                 {title: '检测点代号', field: 'siteNo', align: 'left', width: 120},
                 {title: '检测点名称', field: 'siteName', align: 'left'},
                 {title: '原始浓度(ppm)', field: 'concValue', align: 'center', width: 120},
+                {title: '经度', field: 'lng', align: 'center', width: 105},
+                {title: '纬度', field: 'lat', align: 'center', width: 105},
+                {title: '导入批次号', field: 'batchNo', align: 'left', width: 190, templet: function (d) {
+                        return d.batchNo == null ? '-' : d.batchNo;
+                    }},
                 {title: '评定等级', field: 'gradeLevel', align: 'center', toolbar: '#gasLeakCheck-grade'},
                 {title: '适用规则', align: 'center', templet: function (d) {
                         if (d.ruleCode == null) return '-';

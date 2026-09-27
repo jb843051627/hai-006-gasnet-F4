@@ -116,6 +116,21 @@ public class TGasLeakCheck implements Serializable {
     @ApiModelProperty(value = "复核说明")
     private String recheckRemark;
 
+    /** 检漏数据导入批次号(手工录入为NULL) */
+    @TableField("batch_no")
+    @ApiModelProperty(value = "检漏数据导入批次号(手工录入为NULL)")
+    private String batchNo;
+
+    /** 检测点经度 */
+    @TableField("lng")
+    @ApiModelProperty(value = "检测点经度")
+    private BigDecimal lng;
+
+    /** 检测点纬度 */
+    @TableField("lat")
+    @ApiModelProperty(value = "检测点纬度")
+    private BigDecimal lat;
+
     /** 记录情形 0有效 1作废 */
     @TableField("status")
     @ApiModelProperty(value = "记录情形 0有效 1作废")
@@ -287,6 +302,30 @@ public class TGasLeakCheck implements Serializable {
 
     public void setRecheckRemark(String recheckRemark) {
         this.recheckRemark = recheckRemark;
+    }
+
+    public String getBatchNo() {
+        return batchNo;
+    }
+
+    public void setBatchNo(String batchNo) {
+        this.batchNo = batchNo;
+    }
+
+    public BigDecimal getLng() {
+        return lng;
+    }
+
+    public void setLng(BigDecimal lng) {
+        this.lng = lng;
+    }
+
+    public BigDecimal getLat() {
+        return lat;
+    }
+
+    public void setLat(BigDecimal lat) {
+        this.lat = lat;
     }
 
     public Integer getStatus() {

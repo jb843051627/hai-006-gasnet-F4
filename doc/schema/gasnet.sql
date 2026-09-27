@@ -26,17 +26,28 @@ CREATE TABLE IF NOT EXISTS t_gas_conc_rule (
 CREATE TABLE IF NOT EXISTS t_gas_imp_row (
   id bigint NOT NULL COMMENT '主键',
   batch_no varchar(64) DEFAULT NULL COMMENT '检漏数据上传批次号',
-  row_no int DEFAULT NULL COMMENT '原表行次',
-  item_code varchar(64) DEFAULT NULL COMMENT '被校验出的数据项代号',
-  qty decimal(12,2) DEFAULT NULL COMMENT '本行浓度读数(ppm)',
-  status int DEFAULT NULL COMMENT '行落地情形 0待核 1已入库 2退回',
+  row_no int DEFAULT NULL COMMENT '原表行次(Excel行号，表头为第1行)',
+  item_code varchar(64) DEFAULT NULL COMMENT '检测设备/项代号(选填)',
+  site_no varchar(64) DEFAULT NULL COMMENT '管段编号(原始值)',
+  detect_time datetime DEFAULT NULL COMMENT '检测时间(解析成功值)',
+  detect_time_raw varchar(64) DEFAULT NULL COMMENT '检测时间原始文本',
+  qty decimal(12,2) DEFAULT NULL COMMENT '本行浓度读数ppm(解析成功值)',
+  conc_raw varchar(64) DEFAULT NULL COMMENT '浓度原始文本',
+  lng decimal(10,6) DEFAULT NULL COMMENT '经度(解析成功值)',
+  lng_raw varchar(64) DEFAULT NULL COMMENT '经度原始文本',
+  lat decimal(10,6) DEFAULT NULL COMMENT '纬度(解析成功值)',
+  lat_raw varchar(64) DEFAULT NULL COMMENT '纬度原始文本',
+  err_msg varchar(500) DEFAULT NULL COMMENT '校验失败原因(多项以；分隔)',
+  check_id bigint DEFAULT NULL COMMENT '入库后关联正式记录 t_gas_leak_check.id',
+  status int DEFAULT NULL COMMENT '行落地情形 0待核 1已入库 2退回(校验失败) 3重复跳过',
   del_flag int DEFAULT '0' COMMENT '删除标记 0正常 1删除',
   create_by varchar(64) DEFAULT NULL COMMENT '创建者',
   create_time datetime DEFAULT NULL COMMENT '创建时间',
   update_by varchar(64) DEFAULT NULL COMMENT '更新者',
   update_time datetime DEFAULT NULL COMMENT '更新时间',
   remark varchar(500) DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY idx_gas_imp_row_batch (batch_no, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='检漏数据导入核对行';
 
 CREATE TABLE IF NOT EXISTS t_gas_leak_check (
@@ -57,6 +68,9 @@ CREATE TABLE IF NOT EXISTS t_gas_leak_check (
   recheck_rule_id bigint DEFAULT NULL COMMENT '复核时适用规则版本主键',
   recheck_rule_version int DEFAULT NULL COMMENT '复核时适用规则版本号',
   recheck_remark varchar(500) DEFAULT NULL COMMENT '复核说明',
+  batch_no varchar(64) DEFAULT NULL COMMENT '检漏数据导入批次号(手工录入为NULL)',
+  lng decimal(10,6) DEFAULT NULL COMMENT '检测点经度',
+  lat decimal(10,6) DEFAULT NULL COMMENT '检测点纬度',
   status int DEFAULT '0' COMMENT '记录情形 0有效 1作废',
   del_flag int DEFAULT '0' COMMENT '删除标记 0正常 1删除',
   create_by varchar(64) DEFAULT NULL COMMENT '创建者',
@@ -67,7 +81,8 @@ CREATE TABLE IF NOT EXISTS t_gas_leak_check (
   PRIMARY KEY (id),
   UNIQUE KEY uk_gas_leak_check_no (check_no),
   KEY idx_gas_leak_detect_time (detect_time),
-  KEY idx_gas_leak_rule (rule_id)
+  KEY idx_gas_leak_rule (rule_id),
+  KEY idx_gas_leak_batch (batch_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='泄漏浓度检测评定记录';
 
 CREATE TABLE IF NOT EXISTS t_gas_pipe (

@@ -42,7 +42,7 @@ public class GasLeakCheckController extends BaseController {
     }
 
     @Log(title = "泄漏浓度评定记录查询", action = "list")
-    @ApiOperation(value = "评定记录台账", notes = "按检测时间段/检测点/等级查询历史评定")
+    @ApiOperation(value = "评定记录台账", notes = "按检测时间段/检测点/等级/导入批次号查询历史评定")
     @GetMapping("/list")
     @RequiresPermissions("gasLeakCheck:list")
     @ResponseBody
@@ -53,6 +53,9 @@ public class GasLeakCheckController extends BaseController {
         queryWrapper.eq("del_flag", 0).eq("status", 0);
         if (record.getCheckNo() != null && !record.getCheckNo().isEmpty()) {
             queryWrapper.like("check_no", record.getCheckNo());
+        }
+        if (record.getBatchNo() != null && !record.getBatchNo().isEmpty()) {
+            queryWrapper.eq("batch_no", record.getBatchNo());
         }
         if (record.getSiteNo() != null && !record.getSiteNo().isEmpty()) {
             queryWrapper.like("site_no", record.getSiteNo());

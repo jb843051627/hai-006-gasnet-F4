@@ -37,24 +37,76 @@ public class TGasImpRow implements Serializable {
     @ApiModelProperty(value = "检漏数据上传批次号")
     private String batchNo;
 
-    /** 原表行次 */
+    /** 原表行次(Excel行号，表头为第1行) */
     @TableField("row_no")
-    @ApiModelProperty(value = "原表行次")
+    @ApiModelProperty(value = "原表行次(Excel行号，表头为第1行)")
     private Integer rowNo;
 
-    /** 被校验出的数据项代号 */
+    /** 检测设备/项代号(选填) */
     @TableField("item_code")
-    @ApiModelProperty(value = "被校验出的数据项代号")
+    @ApiModelProperty(value = "检测设备/项代号(选填)")
     private String itemCode;
 
-    /** 本行浓度读数(ppm) */
+    /** 管段编号(原始值) */
+    @TableField("site_no")
+    @ApiModelProperty(value = "管段编号(原始值)")
+    private String siteNo;
+
+    /** 检测时间(解析成功值) */
+    @TableField("detect_time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @ApiModelProperty(value = "检测时间(解析成功值)")
+    private Date detectTime;
+
+    /** 检测时间原始文本 */
+    @TableField("detect_time_raw")
+    @ApiModelProperty(value = "检测时间原始文本")
+    private String detectTimeRaw;
+
+    /** 本行浓度读数ppm(解析成功值) */
     @TableField("qty")
-    @ApiModelProperty(value = "本行浓度读数(ppm)")
+    @ApiModelProperty(value = "本行浓度读数ppm(解析成功值)")
     private BigDecimal qty;
 
-    /** 行落地情形 0待核 1已入库 2退回 */
+    /** 浓度原始文本 */
+    @TableField("conc_raw")
+    @ApiModelProperty(value = "浓度原始文本")
+    private String concRaw;
+
+    /** 经度(解析成功值) */
+    @TableField("lng")
+    @ApiModelProperty(value = "经度(解析成功值)")
+    private BigDecimal lng;
+
+    /** 经度原始文本 */
+    @TableField("lng_raw")
+    @ApiModelProperty(value = "经度原始文本")
+    private String lngRaw;
+
+    /** 纬度(解析成功值) */
+    @TableField("lat")
+    @ApiModelProperty(value = "纬度(解析成功值)")
+    private BigDecimal lat;
+
+    /** 纬度原始文本 */
+    @TableField("lat_raw")
+    @ApiModelProperty(value = "纬度原始文本")
+    private String latRaw;
+
+    /** 校验失败原因(多项以；分隔) */
+    @TableField("err_msg")
+    @ApiModelProperty(value = "校验失败原因(多项以；分隔)")
+    private String errMsg;
+
+    /** 入库后关联正式记录 t_gas_leak_check.id */
+    @TableField("check_id")
+    @JsonSerialize(using = ToStringSerializer.class)
+    @ApiModelProperty(value = "入库后关联正式记录 t_gas_leak_check.id")
+    private Long checkId;
+
+    /** 行落地情形 0待核 1已入库 2退回(校验失败) 3重复跳过 */
     @TableField("status")
-    @ApiModelProperty(value = "行落地情形 0待核 1已入库 2退回")
+    @ApiModelProperty(value = "行落地情形 0待核 1已入库 2退回(校验失败) 3重复跳过")
     private Integer status;
 
     /** 删除标记 0正常 1删除 */
@@ -121,12 +173,92 @@ public class TGasImpRow implements Serializable {
         this.itemCode = itemCode;
     }
 
+    public String getSiteNo() {
+        return siteNo;
+    }
+
+    public void setSiteNo(String siteNo) {
+        this.siteNo = siteNo;
+    }
+
+    public Date getDetectTime() {
+        return detectTime;
+    }
+
+    public void setDetectTime(Date detectTime) {
+        this.detectTime = detectTime;
+    }
+
+    public String getDetectTimeRaw() {
+        return detectTimeRaw;
+    }
+
+    public void setDetectTimeRaw(String detectTimeRaw) {
+        this.detectTimeRaw = detectTimeRaw;
+    }
+
     public BigDecimal getQty() {
         return qty;
     }
 
     public void setQty(BigDecimal qty) {
         this.qty = qty;
+    }
+
+    public String getConcRaw() {
+        return concRaw;
+    }
+
+    public void setConcRaw(String concRaw) {
+        this.concRaw = concRaw;
+    }
+
+    public BigDecimal getLng() {
+        return lng;
+    }
+
+    public void setLng(BigDecimal lng) {
+        this.lng = lng;
+    }
+
+    public String getLngRaw() {
+        return lngRaw;
+    }
+
+    public void setLngRaw(String lngRaw) {
+        this.lngRaw = lngRaw;
+    }
+
+    public BigDecimal getLat() {
+        return lat;
+    }
+
+    public void setLat(BigDecimal lat) {
+        this.lat = lat;
+    }
+
+    public String getLatRaw() {
+        return latRaw;
+    }
+
+    public void setLatRaw(String latRaw) {
+        this.latRaw = latRaw;
+    }
+
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
+    }
+
+    public Long getCheckId() {
+        return checkId;
+    }
+
+    public void setCheckId(Long checkId) {
+        this.checkId = checkId;
     }
 
     public Integer getStatus() {
